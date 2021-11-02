@@ -13,5 +13,7 @@ namespace Programemein.Data
             : base(options)
         {
         }
+
+        public DbSet<ImageData> Images { get; set; }
     }
 }
