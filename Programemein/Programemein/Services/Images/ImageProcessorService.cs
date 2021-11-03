@@ -10,6 +10,8 @@ using SixLabors.ImageSharp.Processing;
 using System.IO;
 using Programemein.Data;
 using Programemein.Data.Entities;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace Programemein.Services.Images
 {
@@ -18,12 +20,18 @@ namespace Programemein.Services.Images
         private const int ThumbnailWidth = 300;
         private const int InstagramWidth = 1280;
 
-        private readonly IServiceScopeFactory serviceFactory;
+        private readonly IServiceScopeFactory _serviceFactory;
+        private readonly ApplicationDbContext _dbContext;
 
-        public ImageProcessorService(IServiceScopeFactory serviceFactory)
+        public ImageProcessorService(
+            IServiceScopeFactory serviceFactory,
+            ApplicationDbContext dbContext
+            )
         {
-            this.serviceFactory = serviceFactory;
+            _serviceFactory = serviceFactory;
+            _dbContext = dbContext;
         }
+
 
         public async Task Process(IEnumerable<ImageInputModel> images)
         {
@@ -55,6 +63,54 @@ namespace Programemein.Services.Images
             }
         }
 
+        public Task<Stream> GetOriginal(string id)
+        {
+            return GetImageData(id, "Original");
+        }
+
+        public Task<Stream> GetThumbnail(string id)
+        {
+            return GetImageData(id, "Thumbnail");
+        }
+
+        public Task<Stream> GetInstaGram(string id)
+        {
+            return GetImageData(id, "Instagram");
+        }
+
+        private async Task<Stream> GetImageData(string id, string size)
+        {
+            var database = _dbContext.Database;
+
+            var dbConnection = (SqlConnection)database.GetDbConnection();
+
+            var command = new SqlCommand(
+                $"SELECT {size}Content FROM Images WHERE Id = @id",
+                dbConnection
+            );
+
+            command.Parameters.Add(new SqlParameter("@id", id));
+
+            await dbConnection.OpenAsync();
+
+            var reader = await command.ExecuteReaderAsync();
+
+            Stream result = null;
+
+            if (reader.HasRows)
+            {
+                while (await reader.ReadAsync())
+                {
+                    result = reader.GetStream(0);
+                }
+            }
+
+            await reader.CloseAsync();
+            await dbConnection.CloseAsync();
+
+            return result;
+        }
+
         private async Task Processor(ImageInputModel image)
         {
             using var imageResult = await Image.LoadAsync(image.Content);
@@ -63,7 +119,7 @@ namespace Programemein.Services.Images
             var thumbnail = await ImageToByteArray(imageResult, ThumbnailWidth);
             var instagram = await ImageToByteArray(imageResult, InstagramWidth);
 
-            var dbContext = this.serviceFactory
+            var dbContext = _serviceFactory
             .CreateScope()
             .ServiceProvider
             .GetRequiredService<ApplicationDbContext>();

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Programemein.Data;
 using Programemein.Data.Entities;
 using Programemein.Infrastructure.Extensions;
+using Programemein.Services.Images;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,12 +33,16 @@ namespace Programemein
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
             services.AddControllersWithViews();
+
+            services.AddTransient<IImageProcessorService, ImageProcessorService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
