@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Programemein.Services.Scraping.Scraping
+namespace Programemein.Services.Scraping.Models
 {
     public class MemeModel
     {

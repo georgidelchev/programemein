@@ -5,8 +5,9 @@ using System.Net;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
+using Programemein.Services.Scraping.Models;
 
-namespace Programemein.Services.Scraping.Scraping
+namespace Programemein.Services.Scraping.Sources
 {
     public abstract class Source : ISource
     {

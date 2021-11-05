@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Programemein.Services.Scraping.Models;
 
-namespace Programemein.Services.Scraping.Scraping
+namespace Programemein.Services.Scraping.Sources
 {
     public interface ISource
     {

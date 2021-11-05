@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using AngleSharp.Dom;
-using Programemein.Services.Scraping.Scraping;
+using Programemein.Services.Scraping.Models;
 
-namespace Programemein.Services.Scraping
+namespace Programemein.Services.Scraping.Sources
 {
     /// <summary>
     /// Programmer.io Source
