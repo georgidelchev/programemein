@@ -17,6 +17,6 @@ namespace Programemein.Services.Images
 
         Task<Stream> GetThumbnail(string id);
 
-        Task<Stream> GetInstaGram(string id);
+        Task<Stream> GetInstagram(string id);
     }
 }

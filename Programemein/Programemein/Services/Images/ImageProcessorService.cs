@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Programemein.Models.Images;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,8 +24,7 @@ namespace Programemein.Services.Images
 
         public ImageProcessorService(
             IServiceScopeFactory serviceFactory,
-            ApplicationDbContext dbContext
-            )
+            ApplicationDbContext dbContext)
         {
             _serviceFactory = serviceFactory;
             _dbContext = dbContext;
@@ -44,7 +42,7 @@ namespace Programemein.Services.Images
                 }
                 catch
                 {
-
+                    // ignored
                 }
             }));
 
@@ -59,7 +57,7 @@ namespace Programemein.Services.Images
             }
             catch
             {
-
+                // ignored
             }
         }
 
@@ -73,7 +71,7 @@ namespace Programemein.Services.Images
             return GetImageData(id, "Thumbnail");
         }
 
-        public Task<Stream> GetInstaGram(string id)
+        public Task<Stream> GetInstagram(string id)
         {
             return GetImageData(id, "Instagram");
         }
