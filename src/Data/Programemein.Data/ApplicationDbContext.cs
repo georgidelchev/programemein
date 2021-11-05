@@ -13,5 +13,9 @@ namespace Programemein.Data
         }
 
         public DbSet<ImageData> Images { get; set; }
+
+        public DbSet<Meme> Memes { get; set; }
+
+        public DbSet<Tag> Tags { get; set; }
     }
 }
