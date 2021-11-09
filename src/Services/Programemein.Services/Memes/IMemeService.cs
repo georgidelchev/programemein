@@ -5,6 +5,6 @@ namespace Programemein.Services.Memes
 {
     public interface IMemeService
     {
-        Task<int?> AddAsync(MemeModel meme, int memeId);
+        Task<int?> AddAsync(MemeModel meme, int sourceId);
     }
 }

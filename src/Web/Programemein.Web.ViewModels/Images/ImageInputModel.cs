@@ -9,5 +9,7 @@ namespace Programemein.Web.ViewModels.Images
         public string Type { get; set; }
 
         public Stream Content { get; set; }
+
+        public int MemeId { get; set; }
     }
 }

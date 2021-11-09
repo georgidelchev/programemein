@@ -20,15 +20,15 @@ namespace Programemein.Services.Images
         private const int ThumbnailWidth = 300;
         private const int InstagramWidth = 1280;
 
-        private readonly IServiceScopeFactory _serviceFactory;
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IServiceScopeFactory serviceFactory;
+        private readonly ApplicationDbContext dbContext;
 
         public ImageProcessorService(
             IServiceScopeFactory serviceFactory,
             ApplicationDbContext dbContext)
         {
-            _serviceFactory = serviceFactory;
-            _dbContext = dbContext;
+            this.serviceFactory = serviceFactory;
+            this.dbContext = dbContext;
         }
 
 
@@ -79,7 +79,7 @@ namespace Programemein.Services.Images
 
         private async Task<Stream> GetImageData(string id, string size)
         {
-            var database = _dbContext.Database;
+            var database = this.dbContext.Database;
 
             var dbConnection = (SqlConnection)database.GetDbConnection();
 
@@ -118,16 +118,20 @@ namespace Programemein.Services.Images
             var thumbnail = await ImageToByteArray(imageResult, ThumbnailWidth);
             var instagram = await ImageToByteArray(imageResult, InstagramWidth);
 
-            var dbContext = _serviceFactory
-                .CreateScope()
-                .ServiceProvider
-                .GetRequiredService<ApplicationDbContext>();
+            //var dbContext = this.serviceFactory
+            //    .CreateScope()
+            //    .ServiceProvider
+            //    .GetRequiredService<ApplicationDbContext>();
 
-            var imageModel = new ImageData();
-            imageModel.OriginalFileName = image.Name;
-            imageModel.OriginalType = image.Type;
-            imageModel.OriginalContent = original;
-            imageModel.ThumbnailContent = thumbnail;
+            var imageModel = new ImageData
+            {
+                OriginalFileName = image.Name,
+                OriginalType = image.Type,
+                OriginalContent = original,
+                ThumbnailContent = thumbnail,
+                MemeId = image.MemeId,
+                InstagramContent = instagram,
+            };
 
             await dbContext.Images.AddAsync(imageModel);
             await dbContext.SaveChangesAsync();

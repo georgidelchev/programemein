@@ -27,6 +27,10 @@ namespace Programemein.Data
                 .WithOne(id => id.Meme)
                 .HasForeignKey<ImageData>(id => id.MemeId);
 
+            builder.Entity<Meme>()
+                .Property(p => p.Id)
+                .ValueGeneratedOnAdd();
+
             base.OnModelCreating(builder);
         }
     }

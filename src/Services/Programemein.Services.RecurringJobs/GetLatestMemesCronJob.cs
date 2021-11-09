@@ -44,11 +44,11 @@ namespace Programemein.Services.RecurringJobs
 
             foreach (var meme in memes.WithProgress(context.WriteProgressBar()))
             {
-                var newsId = await this.memeService.AddAsync(meme, source.Id);
+                var memeId = await this.memeService.AddAsync(meme, source.Id);
 
-                if (newsId.HasValue && meme != null)
+                if (memeId.HasValue && meme != null)
                 {
-                    context.WriteLine($"[ID:{newsId}] Successfully imported news with title: {meme.Title}");
+                    context.WriteLine($"[ID:{memeId}] Successfully imported meme with title: {meme.Title}");
                 }
             }
         }

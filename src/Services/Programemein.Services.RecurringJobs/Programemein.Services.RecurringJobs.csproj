@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Programemein.Common\Programemein.Common.csproj" />
-    <ProjectReference Include="..\..\Programemein.Common\Programemein.Common.csproj" />
     <ProjectReference Include="..\Programemein.Services.Scraping\Programemein.Services.Scraping.csproj" />
     <ProjectReference Include="..\Programemein.Services\Programemein.Services.csproj" />
   </ItemGroup>

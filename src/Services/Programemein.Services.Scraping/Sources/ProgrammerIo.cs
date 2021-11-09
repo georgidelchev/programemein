@@ -53,7 +53,7 @@ namespace Programemein.Services.Scraping.Sources
                 CultureInfo.InvariantCulture, DateTimeStyles.None);
 
             var imageUrl = document
-                .QuerySelector("picture img")
+                .QuerySelector("div.g1-frame-inner picture img")
                 ?.GetAttribute("src");
 
             var tags = document

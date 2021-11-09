@@ -1,13 +1,70 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using Programemein.Data;
+using Programemein.Data.Entities;
+using Programemein.Services.Images;
 using Programemein.Services.Scraping.Models;
+using Programemein.Web.ViewModels.Images;
 
 namespace Programemein.Services.Memes
 {
     public class MemeService : IMemeService
     {
-        public Task<int?> AddAsync(MemeModel meme, int memeId)
+        private readonly ApplicationDbContext dbContext;
+        private readonly IImageProcessorService imageProcessorService;
+
+        public MemeService(
+            ApplicationDbContext dbContext,
+            IImageProcessorService imageProcessorService)
         {
-            throw new System.NotImplementedException();
+            this.dbContext = dbContext;
+            this.imageProcessorService = imageProcessorService;
+        }
+
+        public async Task<int?> AddAsync(MemeModel meme, int sourceId)
+        {
+            if (dbContext.Memes.Any(m => m.Title == meme.Title))
+            {
+                return null;
+            }
+
+            var memeToAdd = new Meme
+            {
+                CreatedOn = DateTime.UtcNow,
+                OriginalUrl = meme.OriginalUrl,
+                SourceId = sourceId,
+                Title = meme.Title,
+            };
+
+            await this.dbContext.Memes.AddAsync(memeToAdd);
+            await this.dbContext.SaveChangesAsync();
+
+            var imageBytes = new WebClient().DownloadData(meme.ImageUrl);
+
+            var imageInputModel = new ImageInputModel
+            {
+                Content = new MemoryStream(imageBytes),
+                Name = meme.Title,
+                MemeId = memeToAdd.Id,
+                Type = "PNG",
+            };
+
+            ;
+
+            await this.imageProcessorService.Process(imageInputModel);
+
+            foreach (var tag in meme.Tags)
+            {
+                memeToAdd.Tags.Add(new Tag { Name = tag });
+            }
+
+            this.dbContext.Memes.Update(memeToAdd);
+            await this.dbContext.SaveChangesAsync();
+
+            return memeToAdd.Id;
         }
     }
 }
