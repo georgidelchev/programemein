@@ -1,3 +1,9 @@
+using System;
+using System.Linq;
+using Hangfire;
+using Hangfire.Console;
+using Hangfire.Dashboard;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +14,8 @@ using Microsoft.Extensions.Hosting;
 using Programemein.Data;
 using Programemein.Data.Entities;
 using Programemein.Services.Images;
+using Programemein.Services.Memes;
+using Programemein.Services.RecurringJobs;
 using Programemein.Web.Infrastructure.Extensions;
 
 namespace Programemein.Web
@@ -35,14 +43,38 @@ namespace Programemein.Web
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.AddHangfire(config => config
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(
+                    this.Configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
+                    {
+                        UseRecommendedIsolationLevel = true,
+                        UsePageLocksOnDequeue = true,
+                        DisableGlobalLocks = true,
+                        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                        QueuePollInterval = TimeSpan.Zero,
+                    }).UseConsole());
+
             services.AddControllersWithViews();
 
             services.AddTransient<IImageProcessorService, ImageProcessorService>();
+            services.AddTransient<IMemeService, MemeService>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IRecurringJobManager recurringJobManager)
         {
             app.PrepareDatabase();
+            using (var serviceScope = app.ApplicationServices.CreateScope())
+            {
+                var dbContext = serviceScope.ServiceProvider
+                    .GetRequiredService<ApplicationDbContext>();
+                dbContext.Database.Migrate();
+
+                this.LoadAllHangfireRecurringJobs(recurringJobManager, dbContext);
+            }
 
             if (env.IsDevelopment())
             {
@@ -63,6 +95,9 @@ namespace Programemein.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
+            _ = app.UseHangfireServer(new BackgroundJobServerOptions { WorkerCount = 2 });
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions { Authorization = new[] { new HangfireAuthFilter() } });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -71,6 +106,23 @@ namespace Programemein.Web
 
                 endpoints.MapRazorPages();
             });
+        }
+
+        private void LoadAllHangfireRecurringJobs(IRecurringJobManager recurringJobManager, ApplicationDbContext dbContext)
+        {
+            foreach (var source in dbContext.Sources)
+            {
+                recurringJobManager.AddOrUpdate<GetLatestMemesCronJob>(
+                    $"{source.OriginalUrl}",
+                    x => x.StartWorking(source.TypeName, null),
+                    "*/3 * * * *");
+            }
+        }
+
+        private class HangfireAuthFilter : IDashboardAuthorizationFilter
+        {
+            public bool Authorize(DashboardContext dashboardContext)
+                => dashboardContext.GetHttpContext().User.IsInRole("Admin");
         }
     }
 }

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Programemein.Data;
 
 namespace Programemein.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211108123402_AddSourceModel")]
+    partial class AddSourceModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -178,9 +180,6 @@ namespace Programemein.Data.Migrations
                     b.Property<byte[]>("InstagramContent")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<int>("MemeId")
-                        .HasColumnType("int");
-
                     b.Property<byte[]>("OriginalContent")
                         .HasColumnType("varbinary(max)");
 
@@ -195,9 +194,6 @@ namespace Programemein.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MemeId")
-                        .IsUnique();
-
                     b.ToTable("Images");
                 });
 
@@ -210,6 +206,10 @@ namespace Programemein.Data.Migrations
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OriginalUrl")
                         .IsRequired()
@@ -244,7 +244,7 @@ namespace Programemein.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sources");
+                    b.ToTable("Source");
                 });
 
             modelBuilder.Entity("Programemein.Data.Entities.Tag", b =>
@@ -394,17 +394,6 @@ namespace Programemein.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Programemein.Data.Entities.ImageData", b =>
-                {
-                    b.HasOne("Programemein.Data.Entities.Meme", "Meme")
-                        .WithOne("ImageData")
-                        .HasForeignKey("Programemein.Data.Entities.ImageData", "MemeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Meme");
-                });
-
             modelBuilder.Entity("Programemein.Data.Entities.Meme", b =>
                 {
                     b.HasOne("Programemein.Data.Entities.Source", "Source")
@@ -414,11 +403,6 @@ namespace Programemein.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Source");
-                });
-
-            modelBuilder.Entity("Programemein.Data.Entities.Meme", b =>
-                {
-                    b.Navigation("ImageData");
                 });
 
             modelBuilder.Entity("Programemein.Data.Entities.Source", b =>

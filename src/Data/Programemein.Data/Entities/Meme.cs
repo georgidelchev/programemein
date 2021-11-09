@@ -14,10 +14,13 @@ namespace Programemein.Data.Entities
         public DateTime CreatedOn { get; set; }
 
         [Required]
-        public string ImageUrl { get; set; }
-
-        [Required]
         public string OriginalUrl { get; set; }
+
+        public int SourceId { get; set; }
+
+        public Source Source { get; set; }
+
+        public virtual ImageData ImageData { get; set; }
 
         public virtual ICollection<Tag> Tags { get; set; }
             = new List<Tag>();

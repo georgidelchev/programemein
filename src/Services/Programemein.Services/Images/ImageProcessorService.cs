@@ -119,9 +119,9 @@ namespace Programemein.Services.Images
             var instagram = await ImageToByteArray(imageResult, InstagramWidth);
 
             var dbContext = _serviceFactory
-            .CreateScope()
-            .ServiceProvider
-            .GetRequiredService<ApplicationDbContext>();
+                .CreateScope()
+                .ServiceProvider
+                .GetRequiredService<ApplicationDbContext>();
 
             var imageModel = new ImageData();
             imageModel.OriginalFileName = image.Name;

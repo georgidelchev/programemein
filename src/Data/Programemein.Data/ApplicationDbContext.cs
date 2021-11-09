@@ -17,5 +17,17 @@ namespace Programemein.Data
         public DbSet<Meme> Memes { get; set; }
 
         public DbSet<Tag> Tags { get; set; }
+
+        public DbSet<Source> Sources { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Meme>()
+                .HasOne(m => m.ImageData)
+                .WithOne(id => id.Meme)
+                .HasForeignKey<ImageData>(id => id.MemeId);
+
+            base.OnModelCreating(builder);
+        }
     }
 }

@@ -13,6 +13,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Data\Programemein.Data\Programemein.Data.csproj" />
     <ProjectReference Include="..\..\Web\Programemein.Web.ViewModels\Programemein.Web.ViewModels.csproj" />
+    <ProjectReference Include="..\Programemein.Services.Scraping\Programemein.Services.Scraping.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Memes\" />
   </ItemGroup>
 
 </Project>

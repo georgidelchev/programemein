@@ -15,5 +15,9 @@ namespace Programemein.Data.Entities
         public byte[] ThumbnailContent { get; set; }
 
         public byte[] InstagramContent { get; set; }
+
+        public int MemeId { get; set; }
+
+        public virtual Meme Meme { get; set; }
     }
 }
