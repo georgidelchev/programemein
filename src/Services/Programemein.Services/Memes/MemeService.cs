@@ -26,7 +26,9 @@ namespace Programemein.Services.Memes
 
         public async Task<int?> AddAsync(MemeModel meme, int sourceId)
         {
-            if (dbContext.Memes.Any(m => m.Title == meme.Title))
+            var imageBytes = new WebClient().DownloadData(meme.ImageUrl);
+
+            if (IsExisting(meme.Title) || IsExisting(imageBytes))
             {
                 return null;
             }
@@ -42,8 +44,6 @@ namespace Programemein.Services.Memes
             await this.dbContext.Memes.AddAsync(memeToAdd);
             await this.dbContext.SaveChangesAsync();
 
-            var imageBytes = new WebClient().DownloadData(meme.ImageUrl);
-
             var imageInputModel = new ImageInputModel
             {
                 Content = new MemoryStream(imageBytes),
@@ -51,8 +51,6 @@ namespace Programemein.Services.Memes
                 MemeId = memeToAdd.Id,
                 Type = "PNG",
             };
-
-            ;
 
             await this.imageProcessorService.Process(imageInputModel);
 
@@ -66,5 +64,11 @@ namespace Programemein.Services.Memes
 
             return memeToAdd.Id;
         }
+
+        public bool IsExisting(string title)
+            => this.dbContext.Memes.Any(m => m.Title == title);
+
+        public bool IsExisting(byte[] imageBytes)
+            => this.dbContext.Memes.Any(m => m.ImageData.OriginalContent == imageBytes);
     }
 }
