@@ -22,6 +22,8 @@ namespace Programemein.Data.Entities
 
         public virtual ImageData ImageData { get; set; }
 
+        public bool IsInInstagram { get; set; }
+
         public virtual ICollection<Tag> Tags { get; set; }
             = new List<Tag>();
     }

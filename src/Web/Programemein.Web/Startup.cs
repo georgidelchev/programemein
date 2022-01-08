@@ -1,9 +1,13 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using Hangfire;
 using Hangfire.Console;
 using Hangfire.Dashboard;
 using Hangfire.SqlServer;
+using InstagramApiSharp.API;
+using InstagramApiSharp.API.Builder;
+using InstagramApiSharp.Classes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -11,9 +15,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore;
+using Programemein.Common;
 using Programemein.Data;
 using Programemein.Data.Entities;
 using Programemein.Services.Images;
+using Programemein.Services.Instagram;
 using Programemein.Services.Memes;
 using Programemein.Services.RecurringJobs;
 using Programemein.Web.Infrastructure.Extensions;
@@ -59,9 +66,9 @@ namespace Programemein.Web
                     }).UseConsole());
 
             services.AddControllersWithViews();
-
             services.AddTransient<IImageProcessorService, ImageProcessorService>();
             services.AddTransient<IMemeService, MemeService>();
+            services.AddTransient<IInstagramService, InstagramService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IRecurringJobManager recurringJobManager)
@@ -117,6 +124,11 @@ namespace Programemein.Web
                     x => x.StartWorking(source.TypeName, null),
                     "*/3 * * * *");
             }
+
+            recurringJobManager.AddOrUpdate<UploadImageToInstagramCronJob>(
+                $"Instagram Uploader",
+                x => x.StartWorking(null),
+                "*/59 * * * *");
         }
 
         private class HangfireAuthFilter : IDashboardAuthorizationFilter

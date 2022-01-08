@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -65,10 +66,27 @@ namespace Programemein.Services.Memes
             return memeToAdd.Id;
         }
 
+        public Meme GetOneNonUploadedToInstagramAsByteArray()
+            => this.dbContext
+                .Memes
+                .FirstOrDefault(m => !m.IsInInstagram);
+
         public bool IsExisting(string title)
             => this.dbContext.Memes.Any(m => m.Title == title);
 
         public bool IsExisting(byte[] imageBytes)
             => this.dbContext.Memes.Any(m => m.ImageData.OriginalContent == imageBytes);
+
+        public void MarkAsUploadedToInstagram(int id)
+        {
+            var meme = this.dbContext
+                .Memes
+                .FirstOrDefault(m => m.Id == id);
+
+            meme.IsInInstagram = true;
+
+            this.dbContext.Update(meme);
+            this.dbContext.SaveChanges();
+        }
     }
 }
